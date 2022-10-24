@@ -3,6 +3,7 @@ import getStripe from "../../../../utils/get-stripejs";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm, {
 	PaymentCheckoutProps,
+	PaymentStatusList,
 } from "../../../../components/CheckoutForm";
 import axios from "axios";
 import Head from "next/head";
@@ -14,13 +15,6 @@ const styles = {
 	input: "rounded w-full p-2 mb-2 outline-none",
 	button: "rounded w-full p-2 mb-2 bg-slate-500",
 };
-
-export enum PaymentStatusList {
-	INITIAL,
-	PROCESSING,
-	PROCESSED,
-	ERROR,
-}
 
 interface PaymentContract {
 	status: PaymentStatusList;

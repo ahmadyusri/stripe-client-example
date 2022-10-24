@@ -4,7 +4,13 @@ import {
 	useStripe,
 	useElements,
 } from "@stripe/react-stripe-js";
-import { PaymentStatusList } from "../../pages/page/payment/stripe/payment-secret";
+
+export enum PaymentStatusList {
+	INITIAL,
+	PROCESSING,
+	PROCESSED,
+	ERROR,
+}
 
 export interface Customer {
 	id: string | number;
