@@ -92,7 +92,7 @@ export default function CheckoutForm({
 				message: error.message,
 			});
 		}
-	}, [stripe]);
+	}, [stripe, payment.client_secret, updateStatus]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

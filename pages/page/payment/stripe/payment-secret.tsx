@@ -5,7 +5,6 @@ import CheckoutForm, {
 	PaymentCheckoutProps,
 	PaymentStatusList,
 } from "../../../../components/CheckoutForm";
-import axios from "axios";
 import Head from "next/head";
 
 export interface IStripeProps {}
@@ -20,8 +19,6 @@ interface PaymentContract {
 	status: PaymentStatusList;
 	paymentIntent?: PaymentCheckoutProps;
 }
-
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const Stripe = (_props: IStripeProps) => {
 	const [payment, setPayment] = useState<PaymentContract>({

@@ -138,7 +138,7 @@ const Stripe = (_props: IStripeProps) => {
 			</Head>
 
 			<div className={styles.container}>
-				{payment.status !== PaymentStatusList.PROCESSING && (
+				{payment.status === PaymentStatusList.INITIAL && (
 					<>
 						<input
 							ref={form.apiToken}
@@ -159,19 +159,15 @@ const Stripe = (_props: IStripeProps) => {
 					</>
 				)}
 
-				{payment.status === PaymentStatusList.PROCESSING && (
-					<button
-						className={styles.button}
-						onClick={cancelCheckout}
-						disabled={
-							payment.status !== PaymentStatusList.PROCESSING
-						}
-					>
-						Cancel
+				{payment.status !== PaymentStatusList.INITIAL && (
+					<button className={styles.button} onClick={cancelCheckout}>
+						{payment.status === PaymentStatusList.PROCESSED
+							? "Back"
+							: "Cancel"}
 					</button>
 				)}
 
-				{payment.status === PaymentStatusList.PROCESSING &&
+				{payment.status === PaymentStatusList.INITIAL &&
 					payment.paymentIntent && (
 						<Elements
 							stripe={getStripe()}
