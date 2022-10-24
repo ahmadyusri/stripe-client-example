@@ -14,11 +14,14 @@ const Home: NextPage = () => {
 			</Head>
 
 			<main className={styles.main}>
-				<h1 className={styles.title}>Payment Client Example So Thai</h1>
+				<h1 className={styles.title}>Payment Client Example</h1>
 
 				<p className={styles.description}>
-					List Example
-					<code className={styles.code}>Payment</code>
+					List Example Payment By Backend
+					<br />
+					<code className={styles.code}>
+						{process.env.NEXT_PUBLIC_API_BASE_URL}
+					</code>
 				</p>
 
 				<div className={styles.grid}>
