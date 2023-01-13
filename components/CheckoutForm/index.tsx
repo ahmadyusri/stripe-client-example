@@ -8,7 +8,7 @@ import { PaymentIntent } from "@stripe/stripe-js";
 import {
 	formatNumberForDisplay,
 	formatNumberRemoveZeroDecimal,
-} from "../../utils/Currency";
+} from "../../utils/currency";
 
 export enum PaymentStatusList {
 	INITIAL = "INITIAL",
