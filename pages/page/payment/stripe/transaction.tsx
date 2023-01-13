@@ -8,7 +8,7 @@ import CheckoutForm, {
 import axios from "axios";
 import Head from "next/head";
 
-export interface IStripeProps {}
+export interface IStripeByTransactionProps {}
 
 const styles = {
 	container: "w-[400px] min-h-[500px] mx-auto bg-slate-400 p-2",
@@ -23,7 +23,7 @@ interface PaymentContract {
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const Stripe = (_props: IStripeProps) => {
+const StripeByTransaction = (_props: IStripeByTransactionProps) => {
 	const [payment, setPayment] = useState<PaymentContract>({
 		status: PaymentStatusList.INITIAL,
 	});
@@ -192,4 +192,4 @@ const Stripe = (_props: IStripeProps) => {
 	);
 };
 
-export default Stripe;
+export default StripeByTransaction;

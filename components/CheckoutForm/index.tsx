@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
 	PaymentElement,
 	useStripe,
 	useElements,
 } from "@stripe/react-stripe-js";
+import { PaymentIntent } from "@stripe/stripe-js";
+import {
+	formatNumberForDisplay,
+	formatNumberRemoveZeroDecimal,
+} from "../../utils/Currency";
 
 export enum PaymentStatusList {
-	INITIAL,
-	PROCESSING,
-	PROCESSED,
-	ERROR,
+	INITIAL = "INITIAL",
+	PROCESSING = "PROCESSING",
+	PROCESSED = "PROCESSED",
+	ERROR = "ERROR",
 }
 
 export interface Customer {
@@ -44,9 +49,37 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
 	const [message, setMessage] = useState<MessageContract | undefined>();
 	const [isLoading, setIsLoading] = useState(false);
+	const [paymentIntent, setPaymentIntent] = useState<
+		PaymentIntent | undefined
+	>(undefined);
 
 	const stripe = useStripe();
 	const elements = useElements();
+
+	const amount = useMemo(() => {
+		return paymentIntent
+			? formatNumberRemoveZeroDecimal(
+					paymentIntent.amount,
+					paymentIntent.currency
+			  )
+			: undefined;
+	}, [paymentIntent]);
+
+	const amountDisplay = useMemo(() => {
+		return paymentIntent && amount
+			? formatNumberForDisplay(amount, paymentIntent.currency)
+			: undefined;
+	}, [amount, paymentIntent]);
+
+	const description = useMemo(() => {
+		return paymentIntent ? paymentIntent.description : undefined;
+	}, [paymentIntent]);
+
+	const livemode = useMemo(() => {
+		return paymentIntent ? paymentIntent.livemode : undefined;
+	}, [paymentIntent]);
+
+	const returnUrl: string = `${APP_URL}/page/payment/stripe/payment-secret?client_secret=${payment.client_secret}`;
 
 	useEffect(() => {
 		if (!stripe) {
@@ -57,10 +90,13 @@ export default function CheckoutForm({
 			return;
 		}
 
+		setIsLoading(true);
 		try {
 			stripe
 				.retrievePaymentIntent(payment.client_secret)
 				.then(({ paymentIntent }) => {
+					setPaymentIntent(paymentIntent);
+					console.log({ paymentIntent });
 					switch (paymentIntent?.status) {
 						case "succeeded":
 							updateStatus(PaymentStatusList.PROCESSED);
@@ -70,6 +106,7 @@ export default function CheckoutForm({
 							});
 							break;
 						case "processing":
+							updateStatus(PaymentStatusList.PROCESSED);
 							setMessage({
 								type: "info",
 								message: "Your payment is processing",
@@ -79,9 +116,11 @@ export default function CheckoutForm({
 						case "requires_payment_method":
 							break;
 						default:
+							updateStatus(PaymentStatusList.PROCESSED);
 							setMessage({
 								type: "error",
-								message: "Your payment is processing",
+								message:
+									"Failed to retrieve payment information",
 							});
 							break;
 					}
@@ -92,6 +131,7 @@ export default function CheckoutForm({
 				message: error.message,
 			});
 		}
+		setIsLoading(false);
 	}, [stripe, payment.client_secret, updateStatus]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -107,7 +147,7 @@ export default function CheckoutForm({
 		const { error } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: APP_URL,
+				return_url: returnUrl,
 			},
 		});
 
@@ -134,24 +174,43 @@ export default function CheckoutForm({
 					onSubmit={handleSubmit}
 					className="m-auto"
 				>
-					{payment.amount_display && (
-						<div className="mb-3 text-center font-bold text-lg">
-							Total: {payment.amount_display}
-						</div>
-					)}
+					<div className="mb-4 space-y-1">
+						{amountDisplay && (
+							<div className="text-center font-bold text-lg">
+								Total: {amountDisplay}
+							</div>
+						)}
+						{description && (
+							<div className="text-center text-sm">
+								{description}
+							</div>
+						)}
+						{livemode === false && (
+							<div className="text-center text-md font-bold text-amber-300">
+								Environment Testing
+							</div>
+						)}
+					</div>
 					<PaymentElement id="payment-element" />
 					<button
 						className="rounded w-full p-2 my-2 bg-slate-500"
-						disabled={isLoading || !stripe || !elements}
+						disabled={
+							isLoading ||
+							!stripe ||
+							!elements ||
+							message !== undefined
+						}
 						id="submit"
 					>
 						<span id="button-text">
 							{isLoading ? (
-								<div className="spinner" id="spinner"></div>
+								<div className="spinner" id="spinner">
+									Loading...
+								</div>
 							) : (
 								`${
-									payment.amount_display
-										? "Pay " + payment.amount_display
+									amountDisplay
+										? "Pay " + amountDisplay
 										: "Pay"
 								}`
 							)}
