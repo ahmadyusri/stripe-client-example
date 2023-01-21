@@ -194,12 +194,7 @@ export default function CheckoutForm({
 					<PaymentElement id="payment-element" />
 					<button
 						className="rounded w-full p-2 my-2 bg-slate-500"
-						disabled={
-							isLoading ||
-							!stripe ||
-							!elements ||
-							message !== undefined
-						}
+						disabled={isLoading || !stripe || !elements}
 						id="submit"
 					>
 						<span id="button-text">
